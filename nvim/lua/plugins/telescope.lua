@@ -16,7 +16,7 @@ return {
     { "<leader>gc" },
     { "<leader>gcf" },
     { "<leader>gS" },
-    { "<leader>sy" }, -- was <leader>sds (renamed to avoid timeout conflict with <leader>sd)
+    { "<leader>sy" },
     { "<leader>s/" },
     { "<leader>/" },
     { "<leader><tab>" },
@@ -92,8 +92,13 @@ return {
           sort_lastused = true,
           mappings = {
             n = {
-              ["d"] = function(bufnr)
-                actions.delete_buffer(bufnr, { force = true })
+              ["d"] = function(prompt_bufnr)
+                local action_state = require("telescope.actions.state")
+                local selection = action_state.get_selected_entry()
+                if selection then
+                  actions.close(prompt_bufnr)
+                  vim.api.nvim_buf_delete(selection.bufnr, { force = true })
+                end
               end,
               ["l"] = actions.select_default,
             },

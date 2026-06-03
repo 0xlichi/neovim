@@ -3,7 +3,7 @@ return {
   event = { "BufReadPre", "BufNewFile" },
   dependencies = {
     "nvimtools/none-ls-extras.nvim",
-    "jayp0521/mason-null-ls.nvim",
+    "jay-babu/mason-null-ls.nvim",
     "nvim-lua/plenary.nvim",
   },
   config = function()
@@ -15,7 +15,7 @@ return {
     -- ── Mason: auto-install every tool declared below ──────────────────────────
     mason_null_ls.setup({
       ensure_installed = {
-        -- "prettier", -- JS / TS / HTML / CSS / JSON / YAML / Markdown
+        "prettier", -- JS / TS / HTML / CSS / JSON / YAML / Markdown
         -- "stylua", -- Lua
         -- "ruff", -- Python (format + lint)
         -- "gofumpt", -- Go – strict gofmt superset
@@ -23,7 +23,6 @@ return {
         -- "shfmt", -- Shell
         -- "sqlfluff", -- SQL
         -- "hadolint", -- Dockerfile
-        -- "markdownlint", -- Markdown lint
       },
       automatic_installation = true,
     })
@@ -38,9 +37,16 @@ return {
         if not fmt_enabled then
           return
         end
-        -- Only format if at least one null-ls source supports this buffer
-        if #null_ls.get_source({ method = null_ls.methods.FORMATTING }) > 0 then
-          vim.lsp.buf.format({ async = false, timeout_ms = 3000 })
+        local ft = vim.bo.filetype
+        local sources = null_ls.get_source({ method = null_ls.methods.FORMATTING, filetype = ft })
+        if #sources > 0 then
+          vim.lsp.buf.format({
+            async = false,
+            timeout_ms = 3000,
+            filter = function(client)
+              return client.name == "null-ls"
+            end,
+          })
         end
       end,
     })
@@ -97,11 +103,9 @@ return {
               "100",
             }
           end,
-          -- Don't clobber files that declare their own formatter via
-          -- a `prettier` key in package.json
           condition = function(utils)
             return not utils.root_has_file({ ".prettierignore" })
-              or not utils.root_has_file({ ".prettierrc.js", ".prettierrc.cjs" })
+              and not utils.root_has_file({ ".prettierrc.js", ".prettierrc.cjs" })
           end,
         }),
 
@@ -153,7 +157,7 @@ return {
 
       -- Diagnostics appear only after the buffer is saved to reduce noise
       on_attach = function(_, bufnr)
-        vim.api.nvim_buf_set_option(bufnr, "formatexpr", "") -- Let null-ls own gq
+        vim.bo[bufnr].formatexpr = ""
       end,
     })
   end,

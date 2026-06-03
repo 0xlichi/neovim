@@ -5,7 +5,6 @@ return {
   dependencies = {
     { "williamboman/mason.nvim", config = true },
     "williamboman/mason-lspconfig.nvim",
-    "WhoIsSethDaniel/mason-tool-installer.nvim",
     "hrsh7th/cmp-nvim-lsp",
     {
       "j-hui/fidget.nvim",
@@ -45,9 +44,8 @@ return {
     })
 
     -- ─── Augroups (must be defined BEFORE use) ───────────────────
-    local attach_group = api.nvim_create_augroup("LspAttach", { clear = true })
+    local attach_group = api.nvim_create_augroup("UserLspAttach", { clear = true })
     local highlight_group = api.nvim_create_augroup("LspHighlight", { clear = true })
-    local format_group = api.nvim_create_augroup("LspFormat", { clear = true })
     local hint_group = api.nvim_create_augroup("LspInlayHints", { clear = true })
 
     -- ─── On Attach ───────────────────────────────────────────────
@@ -155,23 +153,6 @@ return {
           lsp.codelens.enable(true, { bufnr = buf })
           map("<leader>cl", lsp.codelens.run, "Run Code Lens")
         end
-
-        -- ── Format on Save ───────────────────────────────────────
-        if client and client:supports_method(methods.textDocument_formatting) then
-          api.nvim_clear_autocmds({ group = format_group, buffer = buf })
-          api.nvim_create_autocmd("BufWritePre", {
-            group = format_group,
-            buffer = buf,
-            callback = function()
-              lsp.buf.format({
-                bufnr = buf,
-                filter = function(c)
-                  return c.name == "null-ls"
-                end,
-              })
-            end,
-          })
-        end
       end,
     })
 
@@ -206,148 +187,151 @@ return {
         },
       },
 
-      --   pyright = {
-      --     settings = {
-      --       python = {
-      --         pythonPath = vim.fn.exepath("python3"),
-      --         analysis = {
-      --           typeCheckingMode = "standard",
-      --           diagnosticMode = "workspace",
-      --           autoSearchPaths = true,
-      --           useLibraryCodeForTypes = true,
-      --           inlayHints = {
-      --             variableTypes = true,
-      --             functionReturnTypes = true,
-      --             callArgumentNames = true,
-      --             pytestParameters = true,
-      --           },
-      --         },
-      --       },
-      --     },
-      --   },
-      --
-      --   ts_ls = {
-      --     settings = {
-      --       typescript = {
-      --         format = { enable = false },
+      -- pyright = {
+      --   settings = {
+      --     python = {
+      --       pythonPath = vim.fn.exepath("python3"),
+      --       analysis = {
+      --         typeCheckingMode = "standard",
+      --         diagnosticMode = "workspace",
+      --         autoSearchPaths = true,
+      --         useLibraryCodeForTypes = true,
       --         inlayHints = {
-      --           includeInlayParameterNameHints = "all",
-      --           includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-      --           includeInlayFunctionParameterTypeHints = true,
-      --           includeInlayVariableTypeHints = true,
-      --           includeInlayPropertyDeclarationTypeHints = true,
-      --           includeInlayFunctionLikeReturnTypeHints = true,
-      --           includeInlayEnumMemberValueHints = true,
-      --         },
-      --       },
-      --
-      --       javascript = {
-      --         format = { enable = false },
-      --         inlayHints = {
-      --           includeInlayParameterNameHints = "literals",
-      --           includeInlayFunctionLikeReturnTypeHints = true,
+      --           variableTypes = true,
+      --           functionReturnTypes = true,
+      --           callArgumentNames = true,
+      --           pytestParameters = true,
       --         },
       --       },
       --     },
       --   },
+      -- },
       --
-      --   gopls = {
-      --     settings = {
-      --       gopls = {
-      --         gofumpt = true,
-      --         staticcheck = true,
-      --         vulncheck = "Imports",
-      --         usePlaceholders = false,
-      --         completeFunctionCalls = true,
-      --         matcher = "Fuzzy",
-      --         semanticTokens = true,
-      --         diagnosticsDelay = "500ms",
+      -- ts_ls = {
+      --   settings = {
+      --     typescript = {
+      --       format = { enable = false },
+      --       inlayHints = {
+      --         includeInlayParameterNameHints = "all",
+      --         includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+      --         includeInlayFunctionParameterTypeHints = true,
+      --         includeInlayVariableTypeHints = true,
+      --         includeInlayPropertyDeclarationTypeHints = true,
+      --         includeInlayFunctionLikeReturnTypeHints = true,
+      --         includeInlayEnumMemberValueHints = true,
+      --       },
+      --     },
       --
-      --         analyses = {
-      --           unusedparams = true,
-      --           unusedvariable = true,
-      --           shadow = true,
-      --           nilness = true,
-      --           useany = true,
-      --           appends = true,
-      --           assign = true,
-      --           atomic = true,
-      --           bools = true,
-      --           composites = true,
-      --           copylocks = true,
-      --           defers = true,
-      --           deprecated = true,
-      --           errorsas = true,
-      --           httpresponse = true,
-      --           infertypeargs = true,
-      --           loopclosure = true,
-      --           lostcancel = true,
-      --           printf = true,
-      --           slog = true,
-      --           sortslice = true,
-      --           stdversion = true,
-      --           stringintconv = true,
-      --           testinggoroutine = true,
-      --           timeformat = true,
-      --           unmarshal = true,
-      --           unreachable = true,
-      --           unusedresult = true,
-      --           waitgroup = true,
-      --         },
-      --
-      --         codelenses = {
-      --           generate = true,
-      --           regenerate_cgo = true,
-      --           tidy = true,
-      --           upgrade_dependency = true,
-      --           vendor = true,
-      --           vulncheck = true,
-      --           test = true,
-      --           gc_details = false,
-      --         },
-      --
-      --         hints = {
-      --           assignVariableTypes = true,
-      --           compositeLiteralFields = true,
-      --           compositeLiteralTypes = true,
-      --           constantValues = true,
-      --           functionTypeParameters = true,
-      --           parameterNames = false,
-      --           rangeVariableTypes = true,
-      --         },
+      --     javascript = {
+      --       format = { enable = false },
+      --       inlayHints = {
+      --         includeInlayParameterNameHints = "literals",
+      --         includeInlayFunctionLikeReturnTypeHints = true,
       --       },
       --     },
       --   },
+      -- },
       --
-      --   html = { filetypes = { "html" } },
-      --   eslint = { settings = { workingDirectory = { mode = "auto" } } },
-      --   bashls = {
-      --     settings = {
-      --       bashIde = { globPattern = "**/*@(.sh|.bash|.zsh|.command)" },
+      -- gopls = {
+      --   settings = {
+      --     gopls = {
+      --       gofumpt = true,
+      --       staticcheck = true,
+      --       vulncheck = "Imports",
+      --       usePlaceholders = false,
+      --       completeFunctionCalls = true,
+      --       matcher = "Fuzzy",
+      --       semanticTokens = true,
+      --       diagnosticsDelay = "500ms",
+      --
+      --       analyses = {
+      --         unusedparams = true,
+      --         unusedvariable = true,
+      --         shadow = true,
+      --         nilness = true,
+      --         useany = true,
+      --         appends = true,
+      --         assign = true,
+      --         atomic = true,
+      --         bools = true,
+      --         composites = true,
+      --         copylocks = true,
+      --         defers = true,
+      --         deprecated = true,
+      --         errorsas = true,
+      --         httpresponse = true,
+      --         infertypeargs = true,
+      --         loopclosure = true,
+      --         lostcancel = true,
+      --         printf = true,
+      --         slog = true,
+      --         sortslice = true,
+      --         stdversion = true,
+      --         stringintconv = true,
+      --         testinggoroutine = true,
+      --         timeformat = true,
+      --         unmarshal = true,
+      --         unreachable = true,
+      --         unusedresult = true,
+      --         waitgroup = true,
+      --       },
+      --
+      --       codelenses = {
+      --         generate = true,
+      --         regenerate_cgo = true,
+      --         tidy = true,
+      --         upgrade_dependency = true,
+      --         vendor = true,
+      --         vulncheck = true,
+      --         test = true,
+      --         gc_details = false,
+      --       },
+      --
+      --       hints = {
+      --         assignVariableTypes = true,
+      --         compositeLiteralFields = true,
+      --         compositeLiteralTypes = true,
+      --         constantValues = true,
+      --         functionTypeParameters = true,
+      --         parameterNames = false,
+      --         rangeVariableTypes = true,
+      --       },
       --     },
       --   },
+      -- },
       --
-      --   tailwindcss = {
-      --     filetypes = {
-      --       "html",
-      --       "css",
-      --       "scss",
-      --       "javascript",
-      --       "javascriptreact",
-      --       "typescript",
-      --       "typescriptreact",
-      --       "vue",
-      --       "svelte",
-      --     },
-      --     init_options = { userLanguages = { eelixir = "html" } },
+      -- html = { filetypes = { "html" } },
+      -- eslint = { settings = { workingDirectory = { mode = "auto" } } },
+      -- bashls = {
+      --   settings = {
+      --     bashIde = { globPattern = "**/*@(.sh|.bash|.zsh|.command)" },
       --   },
+      -- },
       --
-      --   dockerls = {},
-      --   docker_compose_language_service = {},
+      -- tailwindcss = {
+      --   filetypes = {
+      --     "html",
+      --     "css",
+      --     "scss",
+      --     "javascript",
+      --     "javascriptreact",
+      --     "typescript",
+      --     "typescriptreact",
+      --     "vue",
+      --     "svelte",
+      --   },
+      --   init_options = { userLanguages = { eelixir = "html" } },
+      -- },
+      --
+      -- dockerls = {},
+      -- docker_compose_language_service = {},
     }
 
     -- ─── Install & Register ───────────────────────────────────────
-    require("mason-tool-installer").setup({ ensure_installed = vim.tbl_keys(servers) })
+    require("mason-lspconfig").setup({
+      ensure_installed = vim.tbl_keys(servers),
+      automatic_installation = true,
+    })
 
     for name, cfg in pairs(servers) do
       cfg.capabilities = capabilities

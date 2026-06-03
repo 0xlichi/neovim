@@ -1,6 +1,5 @@
 return {
   -- Autoclosing / Pair Helpers
-
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter", -- Load only when entering insert mode to save startup time
@@ -9,9 +8,9 @@ return {
   {
     "windwp/nvim-ts-autotag",
     event = { "BufReadPre", "BufNewFile" },
+    opts = {},
   },
   -- Editing Helpers
-
   {
     "kylechui/nvim-surround",
     version = "^3.0.0", -- Stable release recommended
@@ -24,9 +23,7 @@ return {
     "tpope/vim-sleuth", -- Automatically detect indentation settings for each file
     -- No config needed; plugin auto-works
   },
-
   -- Visual Helpers / UI Enhancements
-
   {
     "folke/todo-comments.nvim",
     event = "VimEnter", -- Load after Vim has started

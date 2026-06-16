@@ -19,6 +19,9 @@ return {
     "hrsh7th/cmp-buffer",
     "hrsh7th/cmp-path",
     "hrsh7th/cmp-cmdline",
+    -- Completes vim.*, vim.fn.*, etc. when editing your own Lua config -- cheap to
+    -- add and immediately useful given this is a Neovim config repo.
+    "hrsh7th/cmp-nvim-lua",
   },
 
   config = function()
@@ -26,12 +29,42 @@ return {
     local luasnip = require("luasnip")
     local compare = require("cmp.config.compare")
 
-    -- ─── Highlight Groups ─────────────────────────────────────────
     local set_hl = vim.api.nvim_set_hl
     local function define_cmp_hls()
       set_hl(0, "CmpNormal", { bg = "#1a1b2e" }) -- lifted dark bg so menu doesn't bleed into code
       set_hl(0, "CmpBorder", { fg = "#7dcfff" }) -- cyan border for visual distinction
       set_hl(0, "CmpSel", { bg = "#2d3f76", bold = true }) -- selected row
+      set_hl(0, "CmpGhostText", { link = "Comment", default = true })
+
+      local kind_hl = {
+        CmpItemKindFunction = "#7aa2f7",
+        CmpItemKindMethod = "#7aa2f7",
+        CmpItemKindConstructor = "#7aa2f7",
+        CmpItemKindVariable = "#c0caf5",
+        CmpItemKindField = "#c0caf5",
+        CmpItemKindProperty = "#c0caf5",
+        CmpItemKindClass = "#e0af68",
+        CmpItemKindInterface = "#e0af68",
+        CmpItemKindStruct = "#e0af68",
+        CmpItemKindModule = "#e0af68",
+        CmpItemKindEnum = "#e0af68",
+        CmpItemKindEnumMember = "#9ece6a",
+        CmpItemKindKeyword = "#bb9af7",
+        CmpItemKindOperator = "#bb9af7",
+        CmpItemKindSnippet = "#9ece6a",
+        CmpItemKindText = "#9ece6a",
+        CmpItemKindValue = "#9ece6a",
+        CmpItemKindConstant = "#ff9e64",
+        CmpItemKindFile = "#c0caf5",
+        CmpItemKindFolder = "#c0caf5",
+        CmpItemKindReference = "#c0caf5",
+        CmpItemKindUnit = "#ff9e64",
+        CmpItemKindEvent = "#ff9e64",
+        CmpItemKindTypeParameter = "#e0af68",
+      }
+      for group, fg in pairs(kind_hl) do
+        set_hl(0, group, { fg = fg, default = true })
+      end
     end
 
     define_cmp_hls()
@@ -42,12 +75,12 @@ return {
     })
 
     -- ─── Snippets ─────────────────────────────────────────────────
-    require("luasnip.loaders.from_vscode").lazy_load()
     luasnip.config.setup({
       history = true,
       updateevents = "TextChanged,TextChangedI",
       enable_autosnippets = true,
     })
+    require("luasnip.loaders.from_vscode").lazy_load()
 
     -- ─── Icons ────────────────────────────────────────────────────
     local kind_icons = {
@@ -85,6 +118,7 @@ return {
       buffer = "Buf",
       path = "Path",
       cmdline = "Cmd",
+      nvim_lua = "Lua",
     }
 
     -- ─── Helpers ──────────────────────────────────────────────────
@@ -106,6 +140,12 @@ return {
         expand = function(args)
           luasnip.lsp_expand(args.body)
         end,
+      },
+
+      -- Inline preview of the selected completion before you confirm it
+      -- (the grayed-out "ghost" text you see in VS Code / Copilot-style UIs).
+      experimental = {
+        ghost_text = { hl_group = "CmpGhostText" },
       },
 
       -- ── Windows ──────────────────────────────────────────────
@@ -206,10 +246,9 @@ return {
         format = function(entry, item)
           item.kind = string.format(" %s %s", kind_icons[item.kind] or "", item.kind)
           item.menu = string.format("[%s]", source_labels[entry.source.name] or entry.source.name)
-
           local MAX = 40
-          if #item.abbr > MAX then
-            item.abbr = item.abbr:sub(1, MAX) .. "…"
+          if vim.fn.strchars(item.abbr) > MAX then
+            item.abbr = vim.fn.strcharpart(item.abbr, 0, MAX) .. "…"
           end
 
           return item
@@ -244,6 +283,18 @@ return {
         end
         return not ctx.in_treesitter_capture("comment") and not ctx.in_syntax_group("Comment")
       end,
+    })
+
+    -- Lua-only extra source: vim.*, vim.fn.*, etc.
+    cmp.setup.filetype("lua", {
+      sources = cmp.config.sources({
+        { name = "nvim_lua" },
+        { name = "nvim_lsp", priority = 1000 },
+        { name = "luasnip", priority = 800 },
+        { name = "path", priority = 300 },
+      }, {
+        { name = "buffer" },
+      }),
     })
 
     -- ─── Cmdline: search (/ and ?) ────────────────────────────────

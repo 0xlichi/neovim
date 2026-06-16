@@ -3,24 +3,25 @@ return {
   branch = "master",
   cmd = "Telescope",
   keys = {
-    { "<leader>sf" },
-    { "<leader>sg" },
-    { "<leader>gl" },
-    { "<leader>sb" },
-    { "<leader>sh" },
-    { "<leader>sd" },
-    { "<leader>sr" },
-    { "<leader>so" },
-    { "<leader>sm" },
-    { "<leader>gf" },
-    { "<leader>gc" },
-    { "<leader>gcf" },
-    { "<leader>gS" },
-    { "<leader>sy" },
-    { "<leader>s/" },
-    { "<leader>/" },
-    { "<leader><tab>" },
-    { "<leader>bb" },
+    { "<leader>sf", desc = "Find Files" },
+    { "<leader>sg", desc = "Grep Word Under Cursor" },
+    { "<leader>gl", desc = "Live Grep" },
+    { "<leader>sb", desc = "Buffers" },
+    { "<leader>sh", desc = "Help Tags" },
+    { "<leader>sd", desc = "Diagnostics" },
+    { "<leader>sr", desc = "Resume Last Search" },
+    { "<leader>so", desc = "Old Files" },
+    { "<leader>sm", desc = "Marks" },
+    { "<leader>gf", desc = "Git Files" },
+    { "<leader>gc", desc = "Git Commits" },
+    { "<leader>gcf", desc = "Git Buffer Commits" },
+    { "<leader>gb", desc = "Git Branches" },
+    { "<leader>gS", desc = "Git Status" },
+    { "<leader>sy", desc = "LSP Symbols" },
+    { "<leader>s/", desc = "Grep Open Files" },
+    { "<leader>/", desc = "Fuzzy Find In Buffer" },
+    { "<leader><tab>", desc = "Buffers" },
+    { "<leader>bb", desc = "Buffers" },
   },
   dependencies = {
     "nvim-lua/plenary.nvim",
@@ -44,7 +45,12 @@ return {
     local function map_keys(maps)
       for mode, bindings in pairs(maps) do
         for key, action in pairs(bindings) do
-          vim.keymap.set(mode, key, action, { silent = true, noremap = true })
+          local desc, fn = nil, action
+          -- allow { fn, "description" } pairs without changing every call site
+          if type(action) == "table" then
+            fn, desc = action[1], action[2]
+          end
+          vim.keymap.set(mode, key, fn, { silent = true, noremap = true, desc = desc })
         end
       end
     end
@@ -126,54 +132,63 @@ return {
     map_keys({
       n = {
         -- Buffers & Marks
-        ["<leader>sb"] = builtin.buffers,
-        ["<leader><tab>"] = builtin.buffers,
-        ["<leader>bb"] = builtin.buffers,
-        ["<leader>sm"] = builtin.marks,
-        ["<leader>so"] = builtin.oldfiles,
+        ["<leader>sb"] = { builtin.buffers, "Buffers" },
+        ["<leader><tab>"] = { builtin.buffers, "Buffers" },
+        ["<leader>bb"] = { builtin.buffers, "Buffers" },
+        ["<leader>sm"] = { builtin.marks, "Marks" },
+        ["<leader>so"] = { builtin.oldfiles, "Old Files" },
 
         -- Git
-        ["<leader>gf"] = builtin.git_files,
-        ["<leader>gc"] = builtin.git_commits,
-        ["<leader>gcf"] = builtin.git_bcommits,
-        ["<leader>gb"] = builtin.git_branches, -- no longer clashes (gitsigns blame moved to <leader>gbl)
-        ["<leader>gS"] = builtin.git_status, -- no longer clashes (gitsigns stage_buffer moved to <leader>gA)
+        ["<leader>gf"] = { builtin.git_files, "Git Files" },
+        ["<leader>gc"] = { builtin.git_commits, "Git Commits" },
+        ["<leader>gcf"] = { builtin.git_bcommits, "Git Buffer Commits" },
+        ["<leader>gb"] = { builtin.git_branches, "Git Branches" },
+        ["<leader>gS"] = { builtin.git_status, "Git Status" },
 
         -- Search
-        ["<leader>sf"] = builtin.find_files,
-        ["<leader>sh"] = builtin.help_tags,
-        ["<leader>sg"] = builtin.grep_string,
-        ["<leader>gl"] = builtin.live_grep,
-        ["<leader>sd"] = builtin.diagnostics,
-        ["<leader>sr"] = builtin.resume,
+        ["<leader>sf"] = { builtin.find_files, "Find Files" },
+        ["<leader>sh"] = { builtin.help_tags, "Help Tags" },
+        ["<leader>sg"] = { builtin.grep_string, "Grep Word Under Cursor" },
+        ["<leader>gl"] = { builtin.live_grep, "Live Grep" },
+        ["<leader>sd"] = { builtin.diagnostics, "Diagnostics" },
+        ["<leader>sr"] = { builtin.resume, "Resume Last Search" },
 
         -- LSP Symbols (renamed from <leader>sds to avoid 300ms timeout on <leader>sd)
-        ["<leader>sy"] = function()
-          builtin.lsp_document_symbols({
-            symbols = {
-              "Class",
-              "Function",
-              "Method",
-              "Constructor",
-              "Interface",
-              "Module",
-              "Property",
-            },
-          })
-        end,
+        ["<leader>sy"] = {
+          function()
+            builtin.lsp_document_symbols({
+              symbols = {
+                "Class",
+                "Function",
+                "Method",
+                "Constructor",
+                "Interface",
+                "Module",
+                "Property",
+              },
+            })
+          end,
+          "LSP Symbols",
+        },
 
         -- Grep in open files only
-        ["<leader>s/"] = function()
-          builtin.live_grep({
-            grep_open_files = true,
-            prompt_title = "Live Grep in Open Files",
-          })
-        end,
+        ["<leader>s/"] = {
+          function()
+            builtin.live_grep({
+              grep_open_files = true,
+              prompt_title = "Live Grep in Open Files",
+            })
+          end,
+          "Grep Open Files",
+        },
 
         -- Fuzzy search current buffer
-        ["<leader>/"] = function()
-          builtin.current_buffer_fuzzy_find(themes.get_dropdown({ previewer = false }))
-        end,
+        ["<leader>/"] = {
+          function()
+            builtin.current_buffer_fuzzy_find(themes.get_dropdown({ previewer = false }))
+          end,
+          "Fuzzy Find In Buffer",
+        },
       },
     })
   end,

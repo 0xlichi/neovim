@@ -3,8 +3,16 @@ return {
   event = { "BufReadPre", "BufNewFile" },
 
   dependencies = {
-    { "williamboman/mason.nvim", config = true },
-    "williamboman/mason-lspconfig.nvim",
+    {
+      "mason-org/mason.nvim",
+      opts = {
+        ui = {
+          border = "rounded",
+          icons = { package_installed = "✓", package_pending = "➜", package_uninstalled = "✗" },
+        },
+      },
+    },
+    "mason-org/mason-lspconfig.nvim",
     "hrsh7th/cmp-nvim-lsp",
     {
       "j-hui/fidget.nvim",
@@ -29,11 +37,6 @@ return {
           [vim.diagnostic.severity.HINT] = " ",
           [vim.diagnostic.severity.INFO] = " ",
         },
-      },
-      virtual_text = {
-        spacing = 4,
-        source = "if_many",
-        prefix = "●",
       },
       float = {
         border = "rounded",
@@ -75,14 +78,6 @@ return {
         map("<leader>rn", lsp.buf.rename, "Rename Symbol")
         map("<leader>ca", lsp.buf.code_action, "Code Action")
         map("<leader>ca", lsp.buf.code_action, "Code Action", "v")
-        map("<leader>cf", function()
-          lsp.buf.format({
-            bufnr = buf,
-            filter = function(c)
-              return c.name == "null-ls"
-            end,
-          })
-        end, "Format Buffer")
 
         -- ── Hover & Signature (modern API with border) ───────────
         map("K", function()
@@ -187,7 +182,7 @@ return {
         },
       },
 
-      -- pyright = {
+      -- basedpyright = {
       --   settings = {
       --     python = {
       --       pythonPath = vim.fn.exepath("python3"),
@@ -204,6 +199,67 @@ return {
       --         },
       --       },
       --     },
+      --   },
+      -- },
+      --
+      -- ruff = {
+      --   on_attach = function(client)
+      --     client.server_capabilities.hoverProvider = false
+      --     client.server_capabilities.documentFormattingProvider = false
+      --     client.server_capabilities.documentRangeFormattingProvider = false
+      --   end,
+      -- },
+      --
+      -- -- ── C / C++ ─────────────────────────────────────────────────
+      -- clangd = {
+      --   cmd = {
+      --     "clangd",
+      --     "--background-index",
+      --     "--clang-tidy",
+      --     "--header-insertion=iwyu",
+      --     "--completion-style=detailed",
+      --     "--function-arg-placeholders",
+      --     "--fallback-style=llvm",
+      --   },
+      --   filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+      --   -- clangd needs a compile_commands.json (or compile_flags.txt) to fully
+      --   -- understand your project; without one it still works but falls back
+      --   -- to single-file heuristics. CMake: `set(CMAKE_EXPORT_COMPILE_COMMANDS
+      --   -- ON)`; Makefiles: generate one with `bear -- make` or `compiledb make`.
+      -- },
+      --
+      -- -- ── Rust ────────────────────────────────────────────────────
+      -- rust_analyzer = {
+      --   settings = {
+      --     ["rust-analyzer"] = {
+      --       cargo = {
+      --         allFeatures = true,
+      --         buildScripts = { enable = true },
+      --       },
+      --       checkOnSave = true,
+      --       check = { command = "clippy" },
+      --       procMacro = { enable = true },
+      --       inlayHints = {
+      --         bindingModeHints = { enable = false },
+      --         chainingHints = { enable = true },
+      --         closureReturnTypeHints = { enable = "always" },
+      --         lifetimeElisionHints = { enable = "skip_trivial" },
+      --         reborrowHints = { enable = "mutable" },
+      --         typeHints = { enable = true },
+      --       },
+      --     },
+      --   },
+      -- },
+      --
+      -- -- ── .NET / C# ───────────────────────────────────────────────
+      -- omnisharp = {
+      --   cmd = { "omnisharp" },
+      --   enable_roslyn_analyzers = true,
+      --   enable_import_completion = true,
+      --   organize_imports_on_format = true,
+      --   settings = {
+      --     FormattingOptions = { EnableEditorConfigSupport = true },
+      --     RoslynExtensionsOptions = { enableAnalyzersSupport = true },
       --   },
       -- },
       --
@@ -328,15 +384,14 @@ return {
     }
 
     -- ─── Install & Register ───────────────────────────────────────
+    for name, cfg in pairs(servers) do
+      cfg.capabilities = vim.tbl_deep_extend("force", {}, capabilities, cfg.capabilities or {})
+      lsp.config(name, cfg)
+    end
+
     require("mason-lspconfig").setup({
       ensure_installed = vim.tbl_keys(servers),
-      automatic_installation = true,
+      automatic_enable = true,
     })
-
-    for name, cfg in pairs(servers) do
-      cfg.capabilities = capabilities
-      lsp.config(name, cfg)
-      lsp.enable(name)
-    end
   end,
 }

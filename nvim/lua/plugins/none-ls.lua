@@ -16,49 +16,16 @@ return {
     mason_null_ls.setup({
       ensure_installed = {
         "prettier", -- JS / TS / HTML / CSS / JSON / YAML / Markdown
-        -- "stylua", -- Lua
-        -- "ruff", -- Python (format + lint)
-        -- "gofumpt", -- Go – strict gofmt superset
-        -- "goimports", -- Go – organise imports
-        -- "shfmt", -- Shell
-        -- "sqlfluff", -- SQL
-        -- "hadolint", -- Dockerfile
+        "stylua", -- Lua
+        "ruff", -- Python (format + lint)
+        "gofumpt", -- Go – strict gofmt superset
+        "goimports", -- Go – organise imports
+        "shfmt", -- Shell
+        "sqlfluff", -- SQL
+        "hadolint", -- Dockerfile
       },
       automatic_installation = true,
     })
-
-    -- ── Format-on-save (opt-in per buffer with <leader>tf) ─────────────────────
-    local fmt_enabled = true -- global toggle
-
-    local fmt_augroup = vim.api.nvim_create_augroup("NoneLsFmt", { clear = true })
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      group = fmt_augroup,
-      callback = function()
-        if not fmt_enabled then
-          return
-        end
-        local ft = vim.bo.filetype
-        local sources = null_ls.get_source({ method = null_ls.methods.FORMATTING, filetype = ft })
-        if #sources > 0 then
-          vim.lsp.buf.format({
-            async = false,
-            timeout_ms = 3000,
-            filter = function(client)
-              return client.name == "null-ls"
-            end,
-          })
-        end
-      end,
-    })
-
-    vim.keymap.set("n", "<leader>tf", function()
-      fmt_enabled = not fmt_enabled
-      vim.notify("Format-on-save " .. (fmt_enabled and "enabled" or "disabled"), vim.log.levels.INFO)
-    end, { desc = "None-ls: toggle format-on-save" })
-
-    vim.keymap.set({ "n", "v" }, "<leader>lf", function()
-      vim.lsp.buf.format({ async = false, timeout_ms = 3000 })
-    end, { desc = "None-ls: format buffer / range" })
 
     -- ── Sources ────────────────────────────────────────────────────────────────
     null_ls.setup({
@@ -66,8 +33,8 @@ return {
       default_timeout = 5000,
       debug = false, -- flip to true to trace source activity
 
-      -- ── Web ────────────────────────────────────────────────────────────────
       sources = {
+        -- ── Web ────────────────────────────────────────────────────────────
         formatting.prettier.with({
           filetypes = {
             "html",
@@ -160,5 +127,55 @@ return {
         vim.bo[bufnr].formatexpr = ""
       end,
     })
+
+    -- ── Format dispatcher ───────────────────────────────────────────────────────
+    local function format(bufnr)
+      bufnr = bufnr or vim.api.nvim_get_current_buf()
+      local ft = vim.bo[bufnr].filetype
+      local has_none_ls_formatter = #null_ls.get_source({ method = null_ls.methods.FORMATTING, filetype = ft }) > 0
+
+      local filter = function(client)
+        if has_none_ls_formatter then
+          return client.name == "null-ls"
+        end
+        return client.name ~= "null-ls"
+      end
+
+      -- Guard against buffers with no matching formatter at all (plain text,
+      -- a filetype with neither a none-ls source nor a formatting-capable
+      -- LSP) so format-on-save doesn't fire a "no formatter" notification on
+      -- every single save of a non-code file.
+      local candidates = vim.tbl_filter(function(c)
+        return filter(c) and c:supports_method("textDocument/formatting")
+      end, vim.lsp.get_clients({ bufnr = bufnr }))
+
+      if #candidates == 0 then
+        return
+      end
+
+      vim.lsp.buf.format({ bufnr = bufnr, async = false, timeout_ms = 3000, filter = filter })
+    end
+
+    -- ── Format-on-save (global toggle via <leader>tf) ──────────────────────────
+    local fmt_enabled = true
+
+    local fmt_augroup = vim.api.nvim_create_augroup("NoneLsFmt", { clear = true })
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      group = fmt_augroup,
+      callback = function(args)
+        if fmt_enabled then
+          format(args.buf)
+        end
+      end,
+    })
+
+    vim.keymap.set("n", "<leader>tf", function()
+      fmt_enabled = not fmt_enabled
+      vim.notify("Format-on-save " .. (fmt_enabled and "enabled" or "disabled"), vim.log.levels.INFO)
+    end, { desc = "None-ls: toggle format-on-save" })
+
+    vim.keymap.set({ "n", "v" }, "<leader>lf", function()
+      format()
+    end, { desc = "None-ls: format buffer / range" })
   end,
 }

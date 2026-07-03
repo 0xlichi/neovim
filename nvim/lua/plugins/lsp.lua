@@ -49,7 +49,6 @@ return {
     -- ─── Augroups (must be defined BEFORE use) ───────────────────
     local attach_group = api.nvim_create_augroup("UserLspAttach", { clear = true })
     local highlight_group = api.nvim_create_augroup("LspHighlight", { clear = true })
-    local hint_group = api.nvim_create_augroup("LspInlayHints", { clear = true })
 
     -- ─── On Attach ───────────────────────────────────────────────
     api.nvim_create_autocmd("LspAttach", {
@@ -120,33 +119,22 @@ return {
           })
         end
 
-        -- ── Inlay Hints ──────────────────────────────────────────
+        -- ── Inlay Hints (v0.11.6 compatible) ─────────────────────
         if client and client:supports_method(methods.textDocument_inlayHint) then
           map("<leader>th", function()
-            local enabled = lsp.inlay_hint.is_enabled({ bufnr = buf })
-            lsp.inlay_hint.enable(not enabled, { bufnr = buf })
+            vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = buf }), { bufnr = buf })
           end, "Toggle Inlay Hints")
-
-          api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
-            buffer = buf,
-            group = hint_group,
-            callback = function()
-              lsp.inlay_hint.enable(true, { bufnr = buf })
-            end,
-          })
-          api.nvim_create_autocmd("InsertEnter", {
-            buffer = buf,
-            group = hint_group,
-            callback = function()
-              lsp.inlay_hint.enable(false, { bufnr = buf })
-            end,
-          })
         end
 
         -- ── Code Lens ────────────────────────────────────────────
         if client and client:supports_method(methods.textDocument_codeLens) then
-          lsp.codelens.enable(true, { bufnr = buf })
           map("<leader>cl", lsp.codelens.run, "Run Code Lens")
+          map("<leader>cl", vim.lsp.codelens.run, "Run Code Lens")
+
+          api.nvim_create_autocmd({ "BufEnter", "BufWritePost" }, {
+            buffer = buf,
+            callback = vim.lsp.codelens.refresh,
+          })
         end
       end,
     })
@@ -182,35 +170,35 @@ return {
         },
       },
 
-      -- basedpyright = {
-      --   settings = {
-      --     python = {
-      --       pythonPath = vim.fn.exepath("python3"),
-      --       analysis = {
-      --         typeCheckingMode = "standard",
-      --         diagnosticMode = "workspace",
-      --         autoSearchPaths = true,
-      --         useLibraryCodeForTypes = true,
-      --         inlayHints = {
-      --           variableTypes = true,
-      --           functionReturnTypes = true,
-      --           callArgumentNames = true,
-      --           pytestParameters = true,
-      --         },
-      --       },
-      --     },
-      --   },
-      -- },
-      --
-      -- ruff = {
-      --   on_attach = function(client)
-      --     client.server_capabilities.hoverProvider = false
-      --     client.server_capabilities.documentFormattingProvider = false
-      --     client.server_capabilities.documentRangeFormattingProvider = false
-      --   end,
-      -- },
-      --
-      -- -- ── C / C++ ─────────────────────────────────────────────────
+      basedpyright = {
+        settings = {
+          python = {
+            pythonPath = vim.fn.exepath("python3"),
+            analysis = {
+              typeCheckingMode = "standard",
+              diagnosticMode = "workspace",
+              autoSearchPaths = true,
+              useLibraryCodeForTypes = true,
+              inlayHints = {
+                variableTypes = true,
+                functionReturnTypes = true,
+                callArgumentNames = true,
+                pytestParameters = true,
+              },
+            },
+          },
+        },
+      },
+
+      ruff = {
+        on_attach = function(client)
+          client.server_capabilities.hoverProvider = false
+          client.server_capabilities.documentFormattingProvider = false
+          client.server_capabilities.documentRangeFormattingProvider = false
+        end,
+      },
+
+      -- ── C / C++ ─────────────────────────────────────────────────
       -- clangd = {
       --   cmd = {
       --     "clangd",
@@ -222,13 +210,9 @@ return {
       --     "--fallback-style=llvm",
       --   },
       --   filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
-      --   -- clangd needs a compile_commands.json (or compile_flags.txt) to fully
-      --   -- understand your project; without one it still works but falls back
-      --   -- to single-file heuristics. CMake: `set(CMAKE_EXPORT_COMPILE_COMMANDS
-      --   -- ON)`; Makefiles: generate one with `bear -- make` or `compiledb make`.
       -- },
-      --
-      -- -- ── Rust ────────────────────────────────────────────────────
+
+      -- ── Rust ────────────────────────────────────────────────────
       -- rust_analyzer = {
       --   settings = {
       --     ["rust-analyzer"] = {
@@ -236,8 +220,10 @@ return {
       --         allFeatures = true,
       --         buildScripts = { enable = true },
       --       },
-      --       checkOnSave = true,
-      --       check = { command = "clippy" },
+      --       checkOnSave = {
+      --         command = "clippy",
+      --         allTargets = true,
+      --       },
       --       procMacro = { enable = true },
       --       inlayHints = {
       --         bindingModeHints = { enable = false },

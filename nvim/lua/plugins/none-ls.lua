@@ -18,10 +18,10 @@ return {
         "prettier", -- JS / TS / HTML / CSS / JSON / YAML / Markdown
         "stylua", -- Lua
         "ruff", -- Python (format + lint)
-        "gofumpt", -- Go – strict gofmt superset
-        "goimports", -- Go – organise imports
+        -- "gofumpt", -- Go – strict gofmt superset
+        -- "goimports", -- Go – organise imports
         "shfmt", -- Shell
-        "sqlfluff", -- SQL
+        -- "sqlfluff", -- SQL
         "hadolint", -- Dockerfile
       },
       automatic_installation = true,
@@ -115,11 +115,6 @@ return {
 
         -- ── Dockerfile ────────────────────────────────────────────────────────
         diagnostics.hadolint,
-
-        -- ── Markdown ──────────────────────────────────────────────────────────
-        diagnostics.markdownlint.with({
-          extra_args = { "--disable", "MD013" }, -- Disable line-length rule (prettier handles it)
-        }),
       },
 
       -- Diagnostics appear only after the buffer is saved to reduce noise

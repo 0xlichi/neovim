@@ -173,7 +173,13 @@ return {
       basedpyright = {
         settings = {
           python = {
-            pythonPath = vim.fn.exepath("python3"),
+            pythonPath = (function()
+              local venv = vim.fn.getcwd() .. "/.venv/bin/python"
+              if vim.fn.executable(venv) == 1 then
+                return venv
+              end
+              return vim.fn.exepath("python3")
+            end)(),
             analysis = {
               typeCheckingMode = "standard",
               diagnosticMode = "workspace",

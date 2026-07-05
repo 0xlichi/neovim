@@ -15,21 +15,20 @@ return {
     -- ── Mason: auto-install every tool declared below ──────────────────────────
     mason_null_ls.setup({
       ensure_installed = {
-        -- "prettier", -- JS / TS / HTML / CSS / JSON / YAML / Markdown
+        "prettier", -- JS / TS / HTML / CSS / JSON / YAML / Markdown
         "stylua", -- Lua
-        "ruff", -- Python (format + lint)
-        -- "gofumpt", -- Go – strict gofmt superset
-        -- "goimports", -- Go – organise imports
+        "ruff", -- Python (format only here; linting owned by the ruff LSP client)
         "shfmt", -- Shell
-        -- "sqlfluff", -- SQL
         "hadolint", -- Dockerfile
+        -- "gofumpt",
+        -- "goimports",
+        -- "sqlfluff",
       },
       automatic_installation = true,
     })
 
     -- ── Sources ────────────────────────────────────────────────────────────────
     null_ls.setup({
-      -- Show null-ls as a named source in :LspInfo / status lines
       default_timeout = 5000,
       debug = false, -- flip to true to trace source activity
 
@@ -86,12 +85,8 @@ return {
         }),
 
         -- ── Python ───────────────────────────────────────────────────────────
-        require("none-ls.formatting.ruff_format").with({
-          extra_args = { "--line-length", "100" },
-        }),
-        require("none-ls.diagnostics.ruff").with({
-          extra_args = { "--select", "E,F,W,I,N,UP,B,C4,SIM,RUF" },
-        }),
+        -- Formatting
+        require("none-ls.formatting.ruff_format"),
 
         -- ── Go ───────────────────────────────────────────────────────────────
         formatting.gofumpt,
@@ -160,6 +155,38 @@ return {
       callback = function(args)
         if fmt_enabled then
           format(args.buf)
+        end
+      end,
+    })
+
+    local ruff_organize_imports_augroup = vim.api.nvim_create_augroup("RuffOrganizeImports", { clear = true })
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      group = ruff_organize_imports_augroup,
+      pattern = "*.py",
+      callback = function(args)
+        local clients = vim.lsp.get_clients({ bufnr = args.buf, name = "ruff" })
+        if #clients == 0 then
+          return
+        end
+        local client = clients[1]
+
+        local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
+        ---@diagnostic disable-next-line: inject-field
+        params.context = { only = { "source.organizeImports" }, diagnostics = {} }
+
+        local result = vim.lsp.buf_request_sync(args.buf, "textDocument/codeAction", params, 1000)
+        if not result then
+          return
+        end
+
+        for _, res in pairs(result) do
+          for _, action in pairs(res.result or {}) do
+            if action.edit then
+              vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding)
+            elseif action.command then
+              client:exec_cmd(action.command, { bufnr = args.buf })
+            end
+          end
         end
       end,
     })

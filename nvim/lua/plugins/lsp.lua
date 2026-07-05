@@ -198,7 +198,6 @@ return {
         end,
       },
 
-      -- ── C / C++ ─────────────────────────────────────────────────
       -- clangd = {
       --   cmd = {
       --     "clangd",
@@ -212,7 +211,6 @@ return {
       --   filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
       -- },
       --
-      -- -- ── Rust ────────────────────────────────────────────────────
       -- rust_analyzer = {
       --   settings = {
       --     ["rust-analyzer"] = {
@@ -236,8 +234,7 @@ return {
       --     },
       --   },
       -- },
-      -- --
-      -- -- -- ── .NET / C# ───────────────────────────────────────────────
+      --
       -- omnisharp = {
       --   cmd = { "omnisharp" },
       --   enable_roslyn_analyzers = true,
@@ -364,9 +361,9 @@ return {
       --   },
       --   init_options = { userLanguages = { eelixir = "html" } },
       -- },
-      --
-      -- dockerls = {},
-      -- docker_compose_language_service = {},
+
+      dockerls = {},
+      docker_compose_language_service = {},
     }
 
     -- ─── Install & Register ───────────────────────────────────────

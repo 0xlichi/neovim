@@ -15,7 +15,7 @@ return {
     -- ── Mason: auto-install every tool declared below ──────────────────────────
     mason_null_ls.setup({
       ensure_installed = {
-        "prettier", -- JS / TS / HTML / CSS / JSON / YAML / Markdown
+        -- "prettier", -- JS / TS / HTML / CSS / JSON / YAML / Markdown
         "stylua", -- Lua
         "ruff", -- Python (format + lint)
         -- "gofumpt", -- Go – strict gofmt superset

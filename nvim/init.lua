@@ -25,7 +25,7 @@ require("lazy").setup({
   spec = {
     { import = "plugins.alpha" },
     { import = "plugins.autocompletion" },
-    { import = "plugins.bufferline" },
+    -- { import = "plugins.bufferline" },
     { import = "plugins.colortheme-switcher" },
     { import = "plugins.comments" },
     { import = "plugins.flash" },
@@ -46,6 +46,7 @@ require("lazy").setup({
     { import = "plugins.treesj" },
     { import = "plugins.debug" },
     { import = "plugins.twilight" },
+    { import = "plugins.harpoon2" },
     { import = "plugins.treesitter-textobjects" },
   },
   change_detection = {

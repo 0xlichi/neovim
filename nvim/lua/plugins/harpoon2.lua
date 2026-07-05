@@ -4,35 +4,15 @@ return {
   dependencies = { "nvim-lua/plenary.nvim" },
   config = function()
     require("harpoon"):setup()
-
-    -- Track current index for cycling
-    local current_index = 0
-
-    vim.keymap.set("n", "<leader>hn", function()
-      local harpoon = require("harpoon")
-      local list = harpoon:list()
-
-      if #list.items == 0 then
-        vim.notify("Harpoon list is empty", vim.log.levels.WARN)
-        return
-      end
-
-      current_index = current_index + 1
-      if current_index > #list.items then
-        current_index = 1
-      end
-
-      list:select(current_index)
-      local file = list.items[current_index].value
-      vim.notify("Cycling to: " .. file, vim.log.levels.INFO)
-    end, { desc = "Cycle through harpoon list" })
   end,
   keys = {
     {
       "<leader>ha",
       function()
         require("harpoon"):list():add()
-        vim.notify("Added to Harpoon", vim.log.levels.INFO)
+        require("noice").redirect(function()
+          vim.notify("Added to Harpoon", vim.log.levels.INFO)
+        end)
       end,
       desc = "add file to harpoon",
     },
@@ -51,19 +31,6 @@ return {
         vim.notify("Harpoon list cleared", vim.log.levels.INFO)
       end,
       desc = "clear harpoon list",
-    },
-    {
-      "<leader>hn",
-      function()
-        local harpoon = require("harpoon")
-        local list = harpoon:list()
-
-        if #list.items == 0 then
-          vim.notify("Harpoon list is empty", vim.log.levels.WARN)
-          return
-        end
-      end,
-      desc = "cycle through harpoon list",
     },
     {
       "<leader>1",

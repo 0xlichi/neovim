@@ -40,8 +40,8 @@ vim.keymap.set("n", "<leader>+", "<C-a>", opts)
 vim.keymap.set("n", "<leader>-", "<C-x>", opts)
 
 -- ── Window splits ─────────────────────────────────────────────────────────────
-vim.keymap.set("n", "<leader>v", "<C-w>v", opts)
-vim.keymap.set("n", "<leader>h", "<C-w>s", opts)
+vim.keymap.set("n", "<leader>vs", "<C-w>v", opts)
+vim.keymap.set("n", "<leader>hs", "<C-w>s", opts)
 vim.keymap.set("n", "<leader>xs", "<cmd>close<CR>", opts)
 
 -- ── Window navigation ─────────────────────────────────────────────────────────

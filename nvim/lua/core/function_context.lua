@@ -1,7 +1,6 @@
 local M = {}
 local ns = vim.api.nvim_create_namespace("function_context_hint")
 
--- ── Constants (defined once at module level, not recreated on every call) ──
 local FT_LABELS = {
   python = "def",
   go = "func",
@@ -43,11 +42,9 @@ local METHOD_LABELS = {
   swift = "func",
 }
 
--- ── Cache: skip re-render if row hasn't changed ────────────────────────────
 -- key: winid, value: { row, text }
 local last_render = {}
 
--- ── Debounce timer ─────────────────────────────────────────────────────────
 local timer = vim.uv.new_timer()
 local DEBOUNCE_MS = 80
 
@@ -56,7 +53,6 @@ local function is_function_node(node)
   return t:find("function", 1, true) or t:find("method", 1, true) or t == "constructor_declaration"
 end
 
--- Iterative instead of recursive — avoids stack overhead on deep trees
 local function find_identifier(root, bufnr)
   local queue = { root }
   local i = 1
@@ -117,7 +113,6 @@ local function get_label(ft, node)
 end
 
 local function current_function_stack(bufnr, row, col)
-  -- treesitter keeps its own incremental parse — no need to call parser:parse()
   local ok, node = pcall(vim.treesitter.get_node, {
     bufnr = bufnr,
     pos = { row, col },
@@ -160,7 +155,7 @@ local function render(winid, bufnr, row, col)
   end
   local text = " " .. table.concat(parts, " -> ")
 
-  -- skip extmark update if text is identical to last render on this row
+  -- skip extmark update only if text is identical to the last render on this row
   local cache = last_render[winid]
   if cache and cache.row == row and cache.text == text then
     return
@@ -178,7 +173,6 @@ local function render(winid, bufnr, row, col)
 end
 
 function M.update()
-  -- debounce: reset timer on every event, only fire after DEBOUNCE_MS of silence
   timer:stop()
   timer:start(
     DEBOUNCE_MS,
@@ -197,12 +191,6 @@ function M.update()
       local row = cursor[1] - 1
       local col = cursor[2]
 
-      -- skip if cursor row hasn't changed since last render
-      local cache = last_render[winid]
-      if cache and cache.row == row and cache.text ~= nil then
-        return
-      end
-
       local line = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)[1]
       if not line then
         return
@@ -219,7 +207,6 @@ function M.setup()
     { "BufEnter", "CursorMoved", "CursorMovedI", "TextChanged", "TextChangedI" },
     { group = group, callback = M.update }
   )
-  -- clean up cache when a window is closed
   vim.api.nvim_create_autocmd("WinClosed", {
     group = group,
     callback = function(ev)

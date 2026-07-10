@@ -12,7 +12,7 @@ return {
     local formatting = null_ls.builtins.formatting
     local diagnostics = null_ls.builtins.diagnostics
 
-    -- ── Mason: auto-install every tool declared below ──────────────────────────
+    -- Mason: auto-install every tool declared below
     mason_null_ls.setup({
       ensure_installed = {
         "prettier", -- JS / TS / HTML / CSS / JSON / YAML / Markdown
@@ -20,20 +20,20 @@ return {
         "ruff", -- Python (format only here; linting owned by the ruff LSP client)
         "shfmt", -- Shell
         "hadolint", -- Dockerfile
-        -- "gofumpt",
-        -- "goimports",
-        -- "sqlfluff",
+        "gofumpt",
+        "goimports",
+        "sqlfluff",
       },
       automatic_installation = true,
     })
 
-    -- ── Sources ────────────────────────────────────────────────────────────────
+    -- Sources
     null_ls.setup({
       default_timeout = 5000,
-      debug = false, -- flip to true to trace source activity
+      debug = false,
 
       sources = {
-        -- ── Web ────────────────────────────────────────────────────────────
+        -- Web
         formatting.prettier.with({
           filetypes = {
             "html",
@@ -55,7 +55,6 @@ return {
             "mdx",
             "graphql",
           },
-          -- Respect local .prettierrc if present; fall back to these
           extra_args = function(params)
             local rc = vim.fn.findfile(".prettierrc", params.root .. ";")
             if rc ~= "" then
@@ -75,50 +74,47 @@ return {
           end,
         }),
 
-        -- ── Lua ──────────────────────────────────────────────────────────────
+        -- Lua
         formatting.stylua.with({
           extra_args = { "--indent-type", "Spaces", "--indent-width", "2" },
-          -- Prefer project-level stylua.toml when present
           condition = function(utils)
-            return utils.root_has_file({ "stylua.toml", ".stylua.toml" }) or true -- fall back to extra_args above if no config file
+            return utils.root_has_file({ "stylua.toml", ".stylua.toml" }) or true
           end,
         }),
 
-        -- ── Python ───────────────────────────────────────────────────────────
-        -- Formatting
+        -- Python
         require("none-ls.formatting.ruff_format"),
 
-        -- ── Go ───────────────────────────────────────────────────────────────
+        -- Go
         formatting.gofumpt,
         formatting.goimports.with({
           extra_args = { "-local", "" }, -- Replace with your module path for local grouping
         }),
 
-        -- ── Shell ─────────────────────────────────────────────────────────────
+        -- Shell
         formatting.shfmt.with({
-          extra_args = { "-i", "2", "-ci", "-sr" }, -- 2-space indent, case-indent, space after redirect
+          extra_args = { "-i", "2", "-ci", "-sr" },
           filetypes = { "sh", "bash", "zsh" },
         }),
 
-        -- ── SQL ───────────────────────────────────────────────────────────────
+        -- SQL
         formatting.sqlfluff.with({
-          extra_args = { "--dialect", "mysql" }, -- Change to ansi/postgres/bigquery as needed
+          extra_args = { "--dialect", "mysql" },
         }),
         diagnostics.sqlfluff.with({
           extra_args = { "--dialect", "mysql" },
         }),
 
-        -- ── Dockerfile ────────────────────────────────────────────────────────
+        -- Dockerfile
         diagnostics.hadolint,
       },
 
-      -- Diagnostics appear only after the buffer is saved to reduce noise
       on_attach = function(_, bufnr)
         vim.bo[bufnr].formatexpr = ""
       end,
     })
 
-    -- ── Format dispatcher ───────────────────────────────────────────────────────
+    -- Format dispatcher
     local function format(bufnr)
       bufnr = bufnr or vim.api.nvim_get_current_buf()
       local ft = vim.bo[bufnr].filetype
@@ -131,10 +127,6 @@ return {
         return client.name ~= "null-ls"
       end
 
-      -- Guard against buffers with no matching formatter at all (plain text,
-      -- a filetype with neither a none-ls source nor a formatting-capable
-      -- LSP) so format-on-save doesn't fire a "no formatter" notification on
-      -- every single save of a non-code file.
       local candidates = vim.tbl_filter(function(c)
         return filter(c) and c:supports_method("textDocument/formatting")
       end, vim.lsp.get_clients({ bufnr = bufnr }))
@@ -146,7 +138,7 @@ return {
       vim.lsp.buf.format({ bufnr = bufnr, async = false, timeout_ms = 3000, filter = filter })
     end
 
-    -- ── Format-on-save (global toggle via <leader>tf) ──────────────────────────
+    -- Format-on-save (global toggle via <leader>tf)
     local fmt_enabled = true
 
     local fmt_augroup = vim.api.nvim_create_augroup("NoneLsFmt", { clear = true })

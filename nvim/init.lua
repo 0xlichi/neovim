@@ -16,16 +16,17 @@ if not vim.uv.fs_stat(lazypath) then
   end
 end
 vim.opt.rtp:prepend(lazypath)
--- ── Core config (must run before plugins) ─────────────────────────────────────
+
+-- Core config, must run before plugins
 require("core.options")
 require("core.keymaps")
 require("core.snippets")
--- ── Plugins ───────────────────────────────────────────────────────────────────
+
+-- Plugins
 require("lazy").setup({
   spec = {
     { import = "plugins.alpha" },
     { import = "plugins.autocompletion" },
-    -- { import = "plugins.bufferline" },
     { import = "plugins.colortheme-switcher" },
     { import = "plugins.comments" },
     { import = "plugins.flash" },
@@ -88,7 +89,8 @@ require("lazy").setup({
     },
   },
 })
--- ── Restore cursor position on file open ──────────────────────────────────────
+
+-- Restore cursor position on file open
 vim.api.nvim_create_autocmd("BufReadPost", {
   group = vim.api.nvim_create_augroup("RestoreCursor", { clear = true }),
   callback = function(ev)

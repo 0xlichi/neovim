@@ -1,5 +1,4 @@
 return {
-  -- Autoclosing / Pair Helpers
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
@@ -8,9 +7,8 @@ return {
       local autopairs = require("nvim-autopairs")
       local cmp_autopairs = require("nvim-autopairs.completion.cmp")
       local cmp = require("cmp")
-
       autopairs.setup({
-        check_ts = true, -- use treesitter to validate pairs (avoids closing inside strings)
+        check_ts = true,
         ts_config = {
           lua = { "string", "source" },
           javascript = { "string", "template_string" },
@@ -19,7 +17,7 @@ return {
         },
         disable_filetype = { "TelescopePrompt", "spectre_panel" },
         fast_wrap = {
-          map = "<M-e>", -- Alt+e to wrap the next word/token in a pair
+          map = "<M-e>",
           chars = { "{", "[", "(", '"', "'" },
           pattern = string.gsub([[ [%'%"%)%>%]%)%}%,] ]], "%s+", ""),
           end_key = "$",
@@ -29,7 +27,7 @@ return {
           highlight_grey = "LineNr",
         },
       })
-      
+
       cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
     end,
   },
@@ -38,8 +36,6 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     opts = {},
   },
-
-  -- Editing Helpers
   {
     "kylechui/nvim-surround",
     version = "^3.0.0",
@@ -51,8 +47,6 @@ return {
   {
     "tpope/vim-sleuth",
   },
-
-  -- Visual Helpers / UI Enhancements
   {
     "folke/todo-comments.nvim",
     event = "VimEnter",
@@ -63,17 +57,17 @@ return {
   },
   {
     "NvChad/nvim-colorizer.lua",
-    event = { "BufReadPre", "BufNewFile" }, -- lazy-load instead of on every startup
+    event = { "BufReadPre", "BufNewFile" },
     config = function()
       require("colorizer").setup({
         filetypes = { "*" },
         user_default_options = {
-          RGB = true,      -- #RGB
-          RRGGBB = true,   -- #RRGGBB
-          names = false,   -- "Blue" etc — disabled: too noisy in non-CSS files
-          RRGGBBAA = true, -- #RRGGBBAA
-          css = true,      -- all CSS features
-          tailwind = true, -- tailwind color classes
+          RGB = true,
+          RRGGBB = true,
+          names = false,
+          RRGGBBAA = true,
+          css = true,
+          tailwind = true,
           mode = "background",
         },
       })

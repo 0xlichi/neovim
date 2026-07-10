@@ -19,8 +19,6 @@ return {
     "hrsh7th/cmp-buffer",
     "hrsh7th/cmp-path",
     "hrsh7th/cmp-cmdline",
-    -- Completes vim.*, vim.fn.*, etc. when editing your own Lua config -- cheap to
-    -- add and immediately useful given this is a Neovim config repo.
     "hrsh7th/cmp-nvim-lua",
   },
 
@@ -31,9 +29,9 @@ return {
 
     local set_hl = vim.api.nvim_set_hl
     local function define_cmp_hls()
-      set_hl(0, "CmpNormal", { bg = "#1a1b2e" }) -- lifted dark bg so menu doesn't bleed into code
-      set_hl(0, "CmpBorder", { fg = "#7dcfff" }) -- cyan border for visual distinction
-      set_hl(0, "CmpSel", { bg = "#2d3f76", bold = true }) -- selected row
+      set_hl(0, "CmpNormal", { bg = "#1a1b2e" })
+      set_hl(0, "CmpBorder", { fg = "#7dcfff" })
+      set_hl(0, "CmpSel", { bg = "#2d3f76", bold = true })
       set_hl(0, "CmpGhostText", { link = "Comment", default = true })
 
       local kind_hl = {
@@ -74,7 +72,7 @@ return {
       callback = define_cmp_hls,
     })
 
-    -- ─── Snippets ─────────────────────────────────────────────────
+    -- Snippets
     luasnip.config.setup({
       history = true,
       updateevents = "TextChanged,TextChangedI",
@@ -82,7 +80,7 @@ return {
     })
     require("luasnip.loaders.from_vscode").lazy_load()
 
-    -- ─── Icons ────────────────────────────────────────────────────
+    -- Icons
     local kind_icons = {
       Text = "󰉿",
       Method = "󰊕",
@@ -121,13 +119,13 @@ return {
       nvim_lua = "Lua",
     }
 
-    -- ─── Helpers ──────────────────────────────────────────────────
+    -- Helpers
     local function has_words_before()
       local line, col = unpack(vim.api.nvim_win_get_cursor(0))
       return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
     end
 
-    -- ─── Insert-mode completion ───────────────────────────────────
+    -- Insert-mode completion
     cmp.setup({
 
       performance = {
@@ -142,13 +140,10 @@ return {
         end,
       },
 
-      -- Inline preview of the selected completion before you confirm it
-      -- (the grayed-out "ghost" text you see in VS Code / Copilot-style UIs).
       experimental = {
         ghost_text = { hl_group = "CmpGhostText" },
       },
 
-      -- ── Windows ──────────────────────────────────────────────
       window = {
         completion = cmp.config.window.bordered({
           border = "rounded",
@@ -165,7 +160,6 @@ return {
         }),
       },
 
-      -- ── Keymaps ──────────────────────────────────────────────
       mapping = cmp.mapping.preset.insert({
 
         ["<C-j>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
@@ -177,12 +171,9 @@ return {
         ["<C-Space>"] = cmp.mapping.complete(),
         ["<C-e>"] = cmp.mapping.abort(),
 
-        -- Confirm only if explicitly selected — prevents accidental Enter
         ["<CR>"] = cmp.mapping.confirm({ select = false }),
-        -- Force-confirm first item without selecting
         ["<C-y>"] = cmp.mapping.confirm({ select = true }),
 
-        -- Snippet jump forward / backward
         ["<C-l>"] = cmp.mapping(function()
           if luasnip.expand_or_locally_jumpable() then
             luasnip.expand_or_jump()
@@ -195,7 +186,6 @@ return {
           end
         end, { "i", "s" }),
 
-        -- Smart Tab: menu → snippet → trigger → fallback
         ["<Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_next_item()
@@ -219,7 +209,6 @@ return {
         end, { "i", "s" }),
       }),
 
-      -- ── Sources ───────────────────────────────────────────────
       sources = cmp.config.sources({
         { name = "nvim_lsp", priority = 1000 },
         { name = "nvim_lsp_signature_help", priority = 900 },
@@ -239,7 +228,6 @@ return {
         },
       }),
 
-      -- ── Formatting ───────────────────────────────────────────
       formatting = {
         fields = { "kind", "abbr", "menu" },
         expandable_indicator = true,
@@ -255,12 +243,10 @@ return {
         end,
       },
 
-      -- ── Behaviour ────────────────────────────────────────────
       completion = {
         completeopt = "menu,menuone,noinsert",
       },
 
-      -- ── Sorting ──────────────────────────────────────────────
       sorting = {
         priority_weight = 2,
         comparators = {
@@ -275,7 +261,6 @@ return {
         },
       },
 
-      -- Suppress completion inside comments
       enabled = function()
         local ctx = require("cmp.config.context")
         if vim.api.nvim_get_mode().mode == "c" then
@@ -285,7 +270,6 @@ return {
       end,
     })
 
-    -- Lua-only extra source: vim.*, vim.fn.*, etc.
     cmp.setup.filetype("lua", {
       sources = cmp.config.sources({
         { name = "nvim_lua" },
@@ -297,14 +281,11 @@ return {
       }),
     })
 
-    -- ─── Cmdline: search (/ and ?) ────────────────────────────────
     cmp.setup.cmdline({ "/", "?" }, {
       mapping = cmp.mapping.preset.cmdline(),
       sources = { { name = "buffer" } },
     })
 
-    -- ─── Cmdline: commands (:) ────────────────────────────────────
-    -- Tab confirms the current match instead of jumping to the next one
     cmp.setup.cmdline(":", {
       mapping = cmp.mapping.preset.cmdline({
         ["<Tab>"] = {

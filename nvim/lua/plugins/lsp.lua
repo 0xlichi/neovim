@@ -25,7 +25,7 @@ return {
     local api = vim.api
     local tb = require("telescope.builtin")
 
-    -- ─── Diagnostic UI ───────────────────────────────────────────
+    -- Diagnostic UI
     vim.diagnostic.config({
       underline = true,
       update_in_insert = false,
@@ -46,11 +46,11 @@ return {
       },
     })
 
-    -- ─── Augroups (must be defined BEFORE use) ───────────────────
+    -- Augroups
     local attach_group = api.nvim_create_augroup("UserLspAttach", { clear = true })
     local highlight_group = api.nvim_create_augroup("LspHighlight", { clear = true })
 
-    -- ─── On Attach ───────────────────────────────────────────────
+    -- On Attach
     api.nvim_create_autocmd("LspAttach", {
       group = attach_group,
       callback = function(event)
@@ -62,23 +62,23 @@ return {
           vim.keymap.set(mode or "n", keys, fn, { buffer = buf, desc = "LSP: " .. desc })
         end
 
-        -- ── Navigation ──────────────────────────────────────────
+        -- Navigation
         map("gd", tb.lsp_definitions, "Goto Definition")
         map("gD", lsp.buf.declaration, "Goto Declaration")
         map("gr", tb.lsp_references, "Goto References")
         map("gI", tb.lsp_implementations, "Goto Implementation")
         map("gy", tb.lsp_type_definitions, "Goto Type Definition")
 
-        -- ── Symbols ─────────────────────────────────────────────
+        -- Symbols
         map("<leader>ds", tb.lsp_document_symbols, "Document Symbols")
         map("<leader>ws", tb.lsp_dynamic_workspace_symbols, "Workspace Symbols")
 
-        -- ── Actions ─────────────────────────────────────────────
+        -- Actions
         map("<leader>rn", lsp.buf.rename, "Rename Symbol")
         map("<leader>ca", lsp.buf.code_action, "Code Action")
         map("<leader>ca", lsp.buf.code_action, "Code Action", "v")
 
-        -- ── Hover & Signature (modern API with border) ───────────
+        -- Hover & Signature
         map("K", function()
           lsp.buf.hover({ border = "rounded", max_width = 80 })
         end, "Hover Documentation")
@@ -89,7 +89,7 @@ return {
           lsp.buf.signature_help({ border = "rounded", max_width = 80 })
         end, "Signature Help", "i")
 
-        -- ── Diagnostics ──────────────────────────────────────────
+        -- Diagnostics
         map("[d", function()
           vim.diagnostic.jump({ count = -1 })
         end, "Prev Diagnostic")
@@ -105,7 +105,7 @@ return {
         map("<leader>dl", vim.diagnostic.open_float, "Line Diagnostics")
         map("<leader>dq", vim.diagnostic.setloclist, "Diagnostics to Quickfix")
 
-        -- ── Document Highlight ───────────────────────────────────
+        -- Document Highlight
         if client and client:supports_method(methods.textDocument_documentHighlight) then
           api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
             buffer = buf,
@@ -119,17 +119,16 @@ return {
           })
         end
 
-        -- ── Inlay Hints (v0.11.6 compatible) ─────────────────────
+        -- Inlay Hints
         if client and client:supports_method(methods.textDocument_inlayHint) then
           map("<leader>th", function()
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = buf }), { bufnr = buf })
           end, "Toggle Inlay Hints")
         end
 
-        -- ── Code Lens ────────────────────────────────────────────
+        -- Code Lens
         if client and client:supports_method(methods.textDocument_codeLens) then
           map("<leader>cl", lsp.codelens.run, "Run Code Lens")
-          map("<leader>cl", vim.lsp.codelens.run, "Run Code Lens")
 
           api.nvim_create_autocmd({ "BufEnter", "BufWritePost" }, {
             buffer = buf,
@@ -139,7 +138,7 @@ return {
       end,
     })
 
-    -- ─── Capabilities ─────────────────────────────────────────────
+    -- Capabilities
     local capabilities = vim.tbl_deep_extend(
       "force",
       lsp.protocol.make_client_capabilities(),
@@ -148,9 +147,10 @@ return {
     capabilities.textDocument.completion.completionItem.labelDetailsSupport = true
     capabilities.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
 
-    -- ─── LSP Servers ──────────────────────────────────────────────
+    -- LSP Servers
     local servers = {
 
+      -- Lua
       lua_ls = {
         settings = {
           Lua = {
@@ -170,6 +170,7 @@ return {
         },
       },
 
+      -- Python
       basedpyright = {
         settings = {
           python = {
@@ -204,6 +205,7 @@ return {
         end,
       },
 
+      -- C / C++
       -- clangd = {
       --   cmd = {
       --     "clangd",
@@ -216,7 +218,13 @@ return {
       --   },
       --   filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
       -- },
-      --
+
+      -- Assembly (NASM / GAS / GO / ARM / RISC-V — via cargo install asm-lsp)
+      -- asm_lsp = {
+      --   filetypes = { "asm", "vmasm" },
+      -- },
+
+      -- Rust
       -- rust_analyzer = {
       --   settings = {
       --     ["rust-analyzer"] = {
@@ -240,7 +248,8 @@ return {
       --     },
       --   },
       -- },
-      --
+
+      -- .NET / C# (requires Mono on Linux/macOS for full functionality)
       -- omnisharp = {
       --   cmd = { "omnisharp" },
       --   enable_roslyn_analyzers = true,
@@ -251,7 +260,8 @@ return {
       --     RoslynExtensionsOptions = { enableAnalyzersSupport = true },
       --   },
       -- },
-      --
+
+      -- JavaScript / TypeScript
       -- ts_ls = {
       --   settings = {
       --     typescript = {
@@ -266,7 +276,6 @@ return {
       --         includeInlayEnumMemberValueHints = true,
       --       },
       --     },
-      --
       --     javascript = {
       --       format = { enable = false },
       --       inlayHints = {
@@ -276,7 +285,10 @@ return {
       --     },
       --   },
       -- },
-      --
+
+      -- svelte = {},
+
+      -- Go
       -- gopls = {
       --   settings = {
       --     gopls = {
@@ -344,14 +356,28 @@ return {
       --     },
       --   },
       -- },
-      --
-      -- html = { filetypes = { "html" } },
-      -- eslint = { settings = { workingDirectory = { mode = "auto" } } },
-      -- bashls = {
-      --   settings = {
-      --     bashIde = { globPattern = "**/*@(.sh|.bash|.zsh|.command)" },
-      --   },
+
+      -- Zig
+      -- zls = {},
+
+      -- Kotlin
+      -- kotlin_language_server = {},
+
+      -- PHP
+      -- intelephense = {},
+
+      -- PowerShell
+      -- powershell_es = {
+      --   bundle_path = vim.fn.stdpath("data") .. "/mason/packages/powershell-editor-services",
       -- },
+
+      -- Web
+      -- html = { filetypes = { "html" } },
+      -- cssls = {},
+      -- emmet_ls = {
+      --   filetypes = { "html", "css", "scss", "javascriptreact", "typescriptreact", "vue" },
+      -- },
+      -- eslint = { settings = { workingDirectory = { mode = "auto" } } },
       --
       -- tailwindcss = {
       --   filetypes = {
@@ -368,11 +394,27 @@ return {
       --   init_options = { userLanguages = { eelixir = "html" } },
       -- },
 
+      -- Shell
+      bashls = {
+        settings = {
+          bashIde = { globPattern = "**/*@(.sh|.bash|.zsh|.command)" },
+        },
+      },
+
+      -- Data / Config formats
+      yamlls = {
+        settings = {
+          yaml = { keyOrdering = false },
+        },
+      },
+      jsonls = {},
+
+      -- Containers
       dockerls = {},
       docker_compose_language_service = {},
     }
 
-    -- ─── Install & Register ───────────────────────────────────────
+    -- Install & Register
     for name, cfg in pairs(servers) do
       cfg.capabilities = vim.tbl_deep_extend("force", {}, capabilities, cfg.capabilities or {})
       lsp.config(name, cfg)

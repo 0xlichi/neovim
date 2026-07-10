@@ -36,23 +36,15 @@ return {
         FloatBorder = { link = "FloatBorder" },
       },
     })
-
-    -- Toggle mappings
     vim.keymap.set("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { desc = "Toggle floating terminal" })
     vim.keymap.set("t", "<Esc>", "<cmd>ToggleTerm<CR>", { desc = "Close terminal" })
     vim.keymap.set("t", "<leader>t", "<cmd>ToggleTerm<CR>", { desc = "Close terminal" })
-
-    -- Re-enter terminal mode automatically when the terminal window is entered.
-    -- This handles mouse clicks and scroll events that knock you into normal mode.
     vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
       pattern = "term://*",
       callback = function()
         vim.cmd("startinsert")
       end,
     })
-
-    -- Inside the terminal buffer in normal mode, `i` drops you back into
-    -- terminal mode. Useful if the autocmd doesn't fire fast enough on a click.
     vim.api.nvim_create_autocmd("TermOpen", {
       pattern = "*",
       callback = function()

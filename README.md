@@ -1,4 +1,3 @@
-# 🌟 Neovim 
 A fast, modern, and highly customized Neovim configuration optimized for
 development.\
 This setup includes **LSP support, syntax highlighting, fuzzy finding,
@@ -7,9 +6,11 @@ formatting, linting**, and various quality-of-life enhancements.
 ---
 
 ## Keybindings guide
+
 ```bash
 https://neovim-keybindings-guide.vercel.app/
 ```
+
 ---
 
 ## 📌 Requirements

@@ -46,7 +46,6 @@ return {
       for mode, bindings in pairs(maps) do
         for key, action in pairs(bindings) do
           local desc, fn = nil, action
-          -- allow { fn, "description" } pairs without changing every call site
           if type(action) == "table" then
             fn, desc = action[1], action[2]
           end
@@ -131,21 +130,18 @@ return {
 
     map_keys({
       n = {
-        -- Buffers & Marks
         ["<leader>sb"] = { builtin.buffers, "Buffers" },
         ["<leader><tab>"] = { builtin.buffers, "Buffers" },
         ["<leader>bb"] = { builtin.buffers, "Buffers" },
         ["<leader>sm"] = { builtin.marks, "Marks" },
         ["<leader>so"] = { builtin.oldfiles, "Old Files" },
 
-        -- Git
         ["<leader>gf"] = { builtin.git_files, "Git Files" },
         ["<leader>gc"] = { builtin.git_commits, "Git Commits" },
         ["<leader>gcf"] = { builtin.git_bcommits, "Git Buffer Commits" },
         ["<leader>gb"] = { builtin.git_branches, "Git Branches" },
         ["<leader>gS"] = { builtin.git_status, "Git Status" },
 
-        -- Search
         ["<leader>sf"] = { builtin.find_files, "Find Files" },
         ["<leader>sh"] = { builtin.help_tags, "Help Tags" },
         ["<leader>sg"] = { builtin.grep_string, "Grep Word Under Cursor" },
@@ -153,7 +149,6 @@ return {
         ["<leader>sd"] = { builtin.diagnostics, "Diagnostics" },
         ["<leader>sr"] = { builtin.resume, "Resume Last Search" },
 
-        -- LSP Symbols (renamed from <leader>sds to avoid 300ms timeout on <leader>sd)
         ["<leader>sy"] = {
           function()
             builtin.lsp_document_symbols({
@@ -171,7 +166,6 @@ return {
           "LSP Symbols",
         },
 
-        -- Grep in open files only
         ["<leader>s/"] = {
           function()
             builtin.live_grep({
@@ -182,7 +176,6 @@ return {
           "Grep Open Files",
         },
 
-        -- Fuzzy search current buffer
         ["<leader>/"] = {
           function()
             builtin.current_buffer_fuzzy_find(themes.get_dropdown({ previewer = false }))

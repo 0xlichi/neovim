@@ -1,71 +1,71 @@
--- ── UI / Display ──────────────────────────────────────────────────────────────
-vim.opt.termguicolors = true -- true color
-vim.opt.number = true -- absolute line numbers
-vim.opt.relativenumber = true -- relative line numbers
+-- UI / Display
+vim.opt.termguicolors = true
+vim.opt.number = true
+vim.opt.relativenumber = true
 vim.opt.numberwidth = 2
 vim.opt.cursorline = true
-vim.opt.signcolumn = "yes" -- always show signcolumn
-vim.opt.showmode = false -- hidden (lualine shows it)
-vim.opt.showtabline = 1 -- only when >1 tab
+vim.opt.signcolumn = "yes"
+vim.opt.showmode = false
+vim.opt.showtabline = 1
 vim.opt.cmdheight = 1
 vim.opt.more = false
 vim.opt.wildmenu = true
 vim.opt.wildmode = "longest:full,full"
 
--- ── Window / Scrolling ────────────────────────────────────────────────────────
+-- Window / Scrolling
 vim.opt.wrap = true
-vim.opt.linebreak = true -- don't break mid-word
+vim.opt.linebreak = true
 vim.opt.scrolloff = 4
 vim.opt.sidescrolloff = 0
 vim.opt.sidescroll = 0
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 
--- ── Mouse / Clipboard ─────────────────────────────────────────────────────────
+-- Mouse / Clipboard
 vim.opt.mouse = "a"
 vim.opt.clipboard = "unnamedplus"
 
--- ── Indentation ───────────────────────────────────────────────────────────────
-vim.opt.expandtab = true -- tabs → spaces
+-- Indentation
+vim.opt.expandtab = true
 vim.opt.shiftwidth = 2
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
 vim.opt.smartindent = true
 vim.opt.autoindent = true
-vim.opt.breakindent = true -- indent wrapped lines
+vim.opt.breakindent = true
 
--- ── Search ────────────────────────────────────────────────────────────────────
+-- Search
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
 vim.opt.smartcase = true
--- vim.opt.ignorecase = true   -- uncomment to enable case-insensitive base
+vim.opt.ignorecase = true
 
--- ── Undo / Backup / Swap ──────────────────────────────────────────────────────
+-- Undo / Backup / Swap
 vim.opt.undofile = true
 vim.opt.backup = false
 vim.opt.writebackup = false
 vim.opt.swapfile = false
 
--- ── Completion ────────────────────────────────────────────────────────────────
+-- Completion
 vim.opt.completeopt = "menu,menuone,noinsert"
-vim.opt.shortmess:append("c") -- suppress completion messages
-vim.opt.shortmess:remove("S") -- show search count while typing, e.g. [2/8]
+vim.opt.shortmess:append("c")
+vim.opt.shortmess:remove("S")
 
--- ── Timing ────────────────────────────────────────────────────────────────────
-vim.opt.updatetime = 250 -- faster CursorHold / gitsigns
-vim.opt.timeoutlen = 300 -- which-key trigger delay
+-- Timing
+vim.opt.updatetime = 250
+vim.opt.timeoutlen = 300
 
--- ── Movement ──────────────────────────────────────────────────────────────────
+-- Movement
 vim.opt.whichwrap = "bs<>[]hl"
 vim.opt.backspace = "indent,eol,start"
 
--- ── Files ─────────────────────────────────────────────────────────────────────
+-- Files
 vim.opt.fileencoding = "utf-8"
-vim.opt.fixeol = true -- ensure single newline at end of file
+vim.opt.fixeol = true
 
--- ── Formatting / Keywords ─────────────────────────────────────────────────────
-vim.opt.formatoptions:remove({ "c", "r", "o" }) -- no auto comment continuation
-vim.opt.iskeyword:append("-") -- hyphenated-words as one token
+-- Formatting / Keywords
+vim.opt.formatoptions:remove({ "c", "r", "o" })
+vim.opt.iskeyword:append("-")
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "markdown" },
@@ -74,7 +74,7 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- ── Runtime path ──────────────────────────────────────────────────────────────
+-- Runtime path
 vim.opt.runtimepath:remove("/usr/share/vim/vimfiles")
 
 vim.api.nvim_create_autocmd("FileType", {

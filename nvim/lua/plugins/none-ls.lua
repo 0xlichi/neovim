@@ -20,9 +20,9 @@ return {
         "ruff", -- Python (format only here; linting owned by the ruff LSP client)
         "shfmt", -- Shell
         "hadolint", -- Dockerfile
-        "gofumpt",
-        "goimports",
-        "sqlfluff",
+       -- "gofumpt",
+       -- "goimports",
+       -- "sqlfluff",
       },
       automatic_installation = true,
     })

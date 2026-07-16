@@ -93,6 +93,14 @@ make CMAKE_BUILD_TYPE=Release
 sudo make install
 nvim --version
 ```
+---
+
+## Error -> bash: /usr/sbin/nvim: No such file or directory
+###### Add it to your shell config (e.g. ~/.bashrc or ~/.zshrc)
+```bash
+export PATH="/usr/local/bin:$PATH"
+```
+--- 
 
 ## Installation and Setup
 

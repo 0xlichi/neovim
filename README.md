@@ -1,111 +1,76 @@
-A fast, modern, and highly customized Neovim configuration optimized for
-development.\
-This setup includes **LSP support, syntax highlighting, fuzzy finding,
-formatting, linting**, and various quality-of-life enhancements.
+# Neovim Configuration
 
----
+A fast, modern, and highly customized Neovim configuration optimized for development.
 
-## Keybindings guide
+This setup includes LSP support, syntax highlighting, fuzzy finding, formatting, linting, and various quality-of-life enhancements.
 
-```bash
+## Keybindings Guide
+
 https://neovim-keybindings-guide.vercel.app/
-```
 
----
+## Requirements
 
-## 📌 Requirements
+You need Neovim version 0.11.6
 
-You need **Neovim version above 0.10.x**.\
-Some plugins do not work well below **0.11.x**.
+### Required Dependencies
 
-If your version is lower, build Neovim from source:\
-https://github.com/neovim/neovim/blob/master/INSTALL.md
+1. Neovim (version 0.11.6)
+2. Lua 5.4
+3. Luarocks
+4. LuaJIT
+5. Nerd Fonts
+6. ripgrep
+7. fzf
+8. Go (optional)
+9. Python 3
+10. Node.js
+11. npm
+12. clang
+13. gcc
+14. make
+15. cmake
+16. shellcheck
+17. yazi (optional)
+18. lazygit (optional)
+19. diffutils
 
-### ✔️ Required
+## Installing LSP Servers
 
-1.  **Neovim** version **above 0.11.x**
-2.  **lua 5.4**
-3.  **luarocks**
-4.  **LuaJIT**
-5.  **Nerd Fonts**
-6.  **ripgrep**
-7.  **fzf**
-8.  **go -- optional**
-9.  **python3**
-10. **nodejs**
-11. **npm**
-12. **clang**
-13. **gcc**
-14. **make**
-15. **cmake**
-16. **shellcheck**
-17. **yazi -- optional**
-18. **lazygit -- optional**
-19. **diffutils**
-
----
-
-## 📦 Install VsCode LSP Servers
+Install the VS Code language servers:
 
 ```bash
 sudo npm install -g vscode-langservers-extracted
 ```
 
----
-
-## 📦 Install GO Tools -- Only needed when you are working with golang
-
-```bash
-go install golang.org/x/tools/cmd/goimports@latest
-go install mvdan.cc/gofumpt@latest
-go install honnef.co/go/tools/cmd/staticcheck@latest
+Additional LSP servers, formatters, and linters can be installed through Mason:
 
 ```
-
----
-
-## ⚙️ You can install more LSP Servers, Formatter or Linter using Mason
-
-```bash
 :Mason
 ```
 
----
+## Building Neovim from Source
 
-## ⚔️ Optional: If you configured Neovim previously, remove it to prevent any conflicts.
-
-#### Arch
+For better compatibility with Treesitter, install Neovim version 0.11.6:
 
 ```bash
-sudo pacman -Rns neovim
+git clone https://github.com/neovim/neovim
+cd neovim
+git checkout v0.11.6
+make CMAKE_BUILD_TYPE=Release
+sudo make install
+nvim --version
 ```
 
-#### Debian
+## Removing Existing Neovim Cache
 
 ```bash
-sudo apt autoremove --purge neovim
+rm -rf ~/.config/nvim \
+       ~/.local/share/nvim \
+       ~/.local/state/nvim \
+       ~/.cache/nvim
 ```
 
-#### Red Hat
-
-```bash
-sudo dnf remove neovim neovim-runtime
-```
-
----
-
-## 🗡️ Remove neovim cache
-
-```bash
-rm -rf ~/.config/nvim\
-      ~/.local/share/nvim\
-     ~/.local/state/nvim\
-    ~/.cache/nvim
-```
-
----
-
-## 🔌 Installation and Setup
+## Installation and Setup
 
 ```bash
 cd /tmp
@@ -114,81 +79,52 @@ cd neovim
 cp -r nvim/ ~/.config/
 ```
 
----
+## Docker
 
-## 🐋 Docker
+To try the configuration in a container before installing it locally:
 
 ```bash
 docker run -it --name custom-name 0xlichi/neovim /bin/bash
 ```
 
----
+## Folder Structure
 
-## 📁 Neovim Folder Structure
-
-        nvim/
-        ├── init.lua
-        ├── lazy-lock.json
-        ├── lazyvim.json
-        └── lua
-            ├── core
-            │   ├── keymaps.lua
-            │   ├── function_context.lua
-            │   ├── options.lua
-            │   └── snippets.lua
-            └── plugins
-                ├── alpha.lua
-                ├── autocompletion.lua
-                ├── bufferline.lua
-                ├── cmp.lua
-                ├── colortheme-switcher.lua
-                ├── comments.lua
-                ├── dankcolors.lua
-                ├── debug.lua
-                ├── extra-plugins.lua
-                ├── gitsigns.lua
-                ├── indent-blankline.lua
-                ├── lazygit.lua
-                ├── lsp.lua
-                ├── lualine.lua
-                ├── neotree.lua
-                ├── none-ls.lua
-                ├── render-markdown.lua
-                ├── telescope.lua
-                ├── tiny-inline-diagnostic.lua
-                ├── toogle-term.lua
-                ├── treesitter.lua
-                ├── undotree.lua
-                └── yazi.lua
-
-#### 4 directories, 29 files
-
----
-
-## 🚧 Issue
-
-#### Failed to install ruff || python-lsp-server
-
-###### Arch
-
-```bash
-sudo pacman -Sy python3 pipx
-
-pipx install python-lsp-server
 ```
+nvim
+├── init.lua
+├── lazy-lock.json
+└── lua
+    ├── core
+    │   ├── function_context.lua
+    │   ├── keymaps.lua
+    │   ├── options.lua
+    │   └── snippets.lua
+    └── plugins
+        ├── alpha.lua
+        ├── autocompletion.lua
+        ├── bufferline.lua
+        ├── colortheme-switcher.lua
+        ├── comments.lua
+        ├── debug.lua
+        ├── flash.lua
+        ├── gitsigns.lua
+        ├── harpoon2.lua
+        ├── indent-blankline.lua
+        ├── lsp.lua
+        ├── lualine.lua
+        ├── markdown-render.lua
+        ├── misc.lua
+        ├── noice.lua
+        ├── none-ls.lua
+        ├── telescope.lua
+        ├── tiny-inline-diagnostic.lua
+        ├── toogle-term.lua
+        ├── treesitter.lua
+        ├── treesitter-textobjects.lua
+        ├── treesj.lua
+        ├── twilight.lua
+        ├── undotree.lua
+        └── yazi.lua
 
-###### Ubuntu
-
-```bash
-sudo apt install python3 pipx
-
-pipx install python-lsp-server
+4 directories, 31 files
 ```
-
-###### Red Hat
-
-```bash
-sudo dnf install python3-lsp-server
-```
-
----

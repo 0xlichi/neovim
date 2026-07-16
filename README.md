@@ -69,6 +69,7 @@ sudo apt autoremove
 ```bash
 sudo dnf remove neovim
 ```
+---
 
 ## Removing Existing Neovim Cache
 

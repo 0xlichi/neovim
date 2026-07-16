@@ -53,6 +53,7 @@ Additional LSP servers, formatters, and linters can be installed through Mason:
 For better compatibility with Treesitter, install Neovim version 0.11.6:
 
 ```bash
+cd /tmp
 git clone https://github.com/neovim/neovim
 cd neovim
 git checkout v0.11.6

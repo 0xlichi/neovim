@@ -47,8 +47,28 @@ Additional LSP servers, formatters, and linters can be installed through Mason:
 ```
 :Mason
 ```
+---
 
 ## Remove your existing Neovim
+#### Arch 
+```bash
+sudo pacman -Rns neovim
+
+or
+
+yay -Rns neovim
+```
+
+#### Debian
+```bash
+sudo apt purge neovim
+sudo apt autoremove
+```
+
+#### Red Hat / Fedora / RHEL
+```bash
+sudo dnf remove neovim
+```
 
 ## Removing Existing Neovim Cache
 

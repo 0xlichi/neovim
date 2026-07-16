@@ -48,6 +48,17 @@ Additional LSP servers, formatters, and linters can be installed through Mason:
 :Mason
 ```
 
+## Remove your existing Neovim
+
+## Removing Existing Neovim Cache
+
+```bash
+rm -rf ~/.config/nvim \
+       ~/.local/share/nvim \
+       ~/.local/state/nvim \
+       ~/.cache/nvim
+```
+
 ## Building Neovim from Source
 
 For better compatibility with Treesitter, install Neovim version 0.11.6:
@@ -60,15 +71,6 @@ git checkout v0.11.6
 make CMAKE_BUILD_TYPE=Release
 sudo make install
 nvim --version
-```
-
-## Removing Existing Neovim Cache
-
-```bash
-rm -rf ~/.config/nvim \
-       ~/.local/share/nvim \
-       ~/.local/state/nvim \
-       ~/.cache/nvim
 ```
 
 ## Installation and Setup

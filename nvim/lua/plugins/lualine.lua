@@ -73,7 +73,7 @@ return {
     local file = {
       "filename",
       file_status = true,
-      path = 0,
+      path = 2, -- 0 = filename only, 1 = relative path, 2 = absolute path
       symbols = { modified = "  ", readonly = "  ", unnamed = "  " },
     }
 

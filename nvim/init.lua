@@ -50,6 +50,10 @@ require("lazy").setup({
     { import = "plugins.harpoon2" },
     { import = "plugins.treesitter-textobjects" },
   },
+	rocks = {
+		enabled = true,
+		hererocks = true,
+	},
   change_detection = {
     enabled = true,
     notify = false,

@@ -23,7 +23,7 @@ return {
   end,
   keys = {
     {
-      "<leader>ha",
+      "<leader>hh",
       function()
         require("harpoon"):list():add()
         require("noice").redirect(function()
@@ -33,7 +33,7 @@ return {
       desc = "add file to harpoon",
     },
     {
-      "<leader>hh",
+      "<leader>hl",
       function()
         local harpoon = require("harpoon")
         harpoon.ui:toggle_quick_menu(harpoon:list())
